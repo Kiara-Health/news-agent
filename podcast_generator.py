@@ -16,6 +16,8 @@ import sys
 import os
 from collections import defaultdict, Counter
 import random
+import subprocess
+import requests
 
 class PodcastGenerator:
     def __init__(self, articles_file: str = "filtered_articles.txt"):
@@ -305,75 +307,106 @@ class PodcastGenerator:
         
         return "\n".join(script)
     
+    def generate_summary_with_ollama(self, article: Dict, detailed: bool = True) -> str:
+        """Generate a summary using Ollama with gpt-oss model."""
+        title = article.get('title', '')
+        content = article.get('content', '')
+        
+        if not content:
+            return "No content available for this article."
+        
+        # Remove any existing truncation markers
+        content = content.replace('...', '').strip()
+        
+        # Create different prompts based on whether it's detailed or brief
+        if detailed:
+            # Main stories: 10-15 sentences
+            prompt = f"""Please provide a comprehensive, engaging summary of this biotech news article for a podcast. The summary should be 10-15 sentences that thoroughly cover the key points, significance, and implications of the research or development. Write in a conversational tone suitable for a biotech podcast audience. Include details about the research, companies involved, potential impact, and what this means for the industry.
+
+IMPORTANT: Provide ONLY the summary text. Do not include any thinking process, reasoning, or meta-commentary. Just the summary.
+
+Title: {title}
+
+Content: {content}
+
+Summary:"""
+        else:
+            # Quick hits: 3-5 sentences
+            prompt = f"""Please provide a concise, engaging summary of this biotech news article for a podcast. The summary should be 3-5 sentences that capture the key points and significance of the research or development. Write in a conversational tone suitable for a biotech podcast audience.
+
+IMPORTANT: Provide ONLY the summary text. Do not include any thinking process, reasoning, or meta-commentary. Just the summary.
+
+Title: {title}
+
+Content: {content}
+
+Summary:"""
+        
+        # Log the prompt being sent to Ollama
+        print(f"\n=== OLLAMA PROMPT ===")
+        print(f"Article: {title}")
+        print(f"Prompt: {prompt}")
+        print(f"====================\n")
+        
+        try:
+            # Use ollama command line interface
+            result = subprocess.run([
+                'ollama', 'run', 'gpt-oss:20b', prompt
+            ], capture_output=True, text=True, timeout=90)  # Increased timeout for longer summaries
+            
+            if result.returncode == 0:
+                raw_response = result.stdout.strip()
+                
+                # Log the raw response from Ollama
+                print(f"=== OLLAMA RESPONSE ===")
+                print(f"Raw response: {raw_response}")
+                print(f"======================\n")
+                
+                # Clean up the response
+                summary = raw_response
+                
+                # Remove common prefixes
+                summary = summary.replace('Summary:', '').strip()
+                
+                # Remove thinking sections (everything between "Thinking..." and "...done thinking.")
+                import re
+                summary = re.sub(r'Thinking\.\.\..*?\.\.\.done thinking\.', '', summary, flags=re.DOTALL)
+                
+                # Remove any remaining thinking markers
+                summary = re.sub(r'Thinking\.\.\..*', '', summary, flags=re.DOTALL)
+                summary = re.sub(r'\.\.\.done thinking\.', '', summary)
+                
+                # Clean up extra whitespace
+                summary = re.sub(r'\n\s*\n', '\n\n', summary).strip()
+                
+                # Log the cleaned response
+                print(f"=== CLEANED SUMMARY ===")
+                print(f"Cleaned summary: {summary}")
+                print(f"======================\n")
+                
+                return summary if summary else content[:300] + "..."
+            else:
+                print(f"Ollama error: {result.stderr}")
+                return content[:300] + "..."
+                
+        except subprocess.TimeoutExpired:
+            print("Ollama request timed out")
+            return content[:300] + "..."
+        except Exception as e:
+            print(f"Error calling Ollama: {e}")
+            return content[:300] + "..."
+    
     def generate_article_summary(self, article: Dict, detailed: bool = False) -> str:
         """Generate a summary for an article."""
         title = article.get('title', '')
         content = article.get('content', '')
         
         if detailed:
-            # Detailed summary for main stories
-            # Extract key information from content
-            sentences = content.split('. ')
-            if len(sentences) > 1:
-                summary = sentences[0] + '.'
-                if len(sentences) > 2:
-                    summary += ' ' + sentences[1] + '.'
-            else:
-                summary = content[:200] + '...' if len(content) > 200 else content
-            
-            return summary
+            # For main stories, use Ollama to generate a comprehensive 10-15 sentence summary
+            return self.generate_summary_with_ollama(article, detailed=True)
         else:
-            # Brief summary for quick hits - ensure complete full sentences
-            sentences = content.split('. ')
-            
-            if len(sentences) >= 1:
-                # Take the first complete sentence
-                first_sentence = sentences[0].strip()
-                if first_sentence:
-                    # Ensure it ends with proper punctuation
-                    if not first_sentence.endswith(('.', '!', '?')):
-                        first_sentence += '.'
-                    
-                    # If the sentence is too long, try to find a shorter complete sentence
-                    if len(first_sentence) > 200:
-                        # Look for the second sentence if available
-                        if len(sentences) >= 2:
-                            second_sentence = sentences[1].strip()
-                            if second_sentence and len(second_sentence) <= 200:
-                                if not second_sentence.endswith(('.', '!', '?')):
-                                    second_sentence += '.'
-                                return second_sentence
-                        
-                        # If no good second sentence, try to find a natural break in the first sentence
-                        # Look for common break points like "and", "but", "however", etc.
-                        break_points = [' and ', ' but ', ' however, ', ' although ', ' while ', ' though ']
-                        for break_point in break_points:
-                            if break_point in first_sentence:
-                                parts = first_sentence.split(break_point, 1)
-                                if len(parts[0]) <= 200:
-                                    return parts[0] + '.'
-                    
-                    # If the sentence is reasonable length, return it as is
-                    if len(first_sentence) <= 200:
-                        return first_sentence
-            
-            # Fallback: create a simple summary without truncation
-            # Take the first 150 characters and try to end at a word boundary
-            if len(content) > 150:
-                words = content[:150].split()
-                if len(words) > 3:  # Ensure we have enough words
-                    # Remove the last word if it might be cut off
-                    summary = ' '.join(words[:-1])
-                    # Ensure it ends with proper punctuation
-                    if not summary.endswith(('.', '!', '?')):
-                        summary += '.'
-                    return summary
-            
-            # If content is short enough, return as is
-            summary = content.strip()
-            if not summary.endswith(('.', '!', '?')):
-                summary += '.'
-            return summary
+            # For quick hits, use Ollama to generate a concise 3-5 sentence summary
+            return self.generate_summary_with_ollama(article, detailed=False)
     
     def generate_source_summary(self, articles: List[Dict]) -> str:
         """Generate a summary of all sources used in the podcast."""

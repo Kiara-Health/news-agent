@@ -94,7 +94,7 @@ class BiotechPipeline:
     def step_1_parse_rss_feeds(self) -> bool:
         """Step 1: Parse RSS feeds and generate articles summary."""
         command = [
-            "python", "rss_parser.py"
+            "python3", "rss_parser.py"
         ]
         
         success = self.run_command(command, "RSS Feed Parsing")
@@ -126,7 +126,7 @@ class BiotechPipeline:
             start_str, end_str = self.date_range
         
         command = [
-            "python", "query_articles.py",
+            "python3", "query_articles.py",
             start_str, end_str,
             "--input", str(self.articles_file),
             "--output", str(self.filtered_articles_file)
@@ -145,7 +145,7 @@ class BiotechPipeline:
     def step_3_generate_podcast(self) -> bool:
         """Step 3: Generate podcast script from filtered articles."""
         command = [
-            "python", "podcast_generator.py",
+            "python3", "podcast_generator.py",
             "--input", str(self.filtered_articles_file),
             "--output", str(self.podcast_file)
         ]
@@ -164,7 +164,7 @@ class BiotechPipeline:
         """Step 4: Create LinkedIn posts from podcast script."""
         # Standard LinkedIn post
         command_standard = [
-            "python", "linkedin_extractor.py",
+            "python3", "linkedin_extractor.py",
             "--podcast", str(self.podcast_file),
             "--articles", str(self.filtered_articles_file),
             "--output", str(self.linkedin_post_file)
@@ -174,7 +174,7 @@ class BiotechPipeline:
         
         # Compact LinkedIn post
         command_compact = [
-            "python", "linkedin_extractor.py",
+            "python3", "linkedin_extractor.py",
             "--podcast", str(self.podcast_file),
             "--articles", str(self.filtered_articles_file),
             "--compact",

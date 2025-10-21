@@ -341,7 +341,7 @@ class RSSParser:
                     file.write(f"URL: {article['url']}\n")
                     file.write(f"Published: {article['published_date'].strftime('%Y-%m-%d %H:%M:%S')}\n")
                     file.write(f"Occurrences: {article['occurrences']}\n")
-                    file.write(f"Content: {article['content'][:500]}...\n" if len(article['content']) > 500 else f"Content: {article['content']}\n")
+                    file.write(f"Content: {article['content']}\n")
                     file.write("\n" + "=" * 70 + "\n\n")
             
             logger.info(f"Articles summary saved to {output_file}")
