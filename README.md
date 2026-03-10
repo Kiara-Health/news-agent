@@ -48,9 +48,41 @@ output/
 ## 🎯 Quick Start
 
 ### **Prerequisites:**
+
+#### Option 1: Using uv (Recommended - Fast & Modern)
+```bash
+# Install uv if you haven't already
+# macOS/Linux:
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Or via pip:
+pip install uv
+
+# Install dependencies and create virtual environment
+uv sync
+
+# Activate the virtual environment
+source .venv/bin/activate  # On macOS/Linux
+# or
+.venv\Scripts\activate  # On Windows
+
+# Set up environment variables
+# Copy .env.example to .env and add your OpenAI API key
+cp .env.example .env
+# Edit .env and add your OPENAI_API_KEY
+
+# Ensure sources.txt contains your RSS feed URLs
+```
+
+#### Option 2: Using pip (Traditional)
 ```bash
 # Install Python dependencies
-pip install feedparser requests beautifulsoup4
+pip install -r requirements.txt
+
+# Set up environment variables
+# Copy .env.example to .env and add your OpenAI API key
+cp .env.example .env
+# Edit .env and add your OPENAI_API_KEY
 
 # Ensure sources.txt contains your RSS feed URLs
 ```
@@ -287,6 +319,11 @@ git clone <repository-url>
 cd news-podcast
 
 # Install dependencies
+# Using uv (Recommended):
+uv sync
+source .venv/bin/activate  # macOS/Linux
+
+# Or using pip:
 pip install feedparser requests beautifulsoup4
 
 # Set up RSS sources
@@ -375,6 +412,14 @@ done
 ### **Step-by-Step Setup:**
 
 1. **Install Dependencies:**
+   
+   **Using uv (Recommended):**
+   ```bash
+   uv sync
+   source .venv/bin/activate  # macOS/Linux
+   ```
+   
+   **Using pip:**
    ```bash
    pip install feedparser requests beautifulsoup4
    ```

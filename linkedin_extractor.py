@@ -154,6 +154,8 @@ class LinkedInExtractor:
                 post_lines.append(f"{i}. {title}")
                 post_lines.append("")
         
+        post_lines.append("Disclaimer: This podcast includes content generated with the help of large language models (LLM). Although care has been taken to ensure accuracy, LLMs can sometimes produce incorrect or misleading information. Listeners are advised to independently verify any details, provide feedback, and reach out.")
+        post_lines.append("")
         post_lines.append("#Biotech #Biotechnology #Science #Innovation #Healthcare #Research")
         
         return "\n".join(post_lines)
@@ -187,6 +189,8 @@ class LinkedInExtractor:
             else:
                 post_lines.append(f"{i}. {title}")
         
+        post_lines.append("")
+        post_lines.append("Disclaimer: This podcast includes content generated with the help of large language models (LLM). Although care has been taken to ensure accuracy, LLMs can sometimes produce incorrect or misleading information. Listeners are advised to independently verify any details, provide feedback, and reach out.")
         post_lines.append("")
         post_lines.append("#Biotech #Biotechnology #Science #Innovation #Healthcare #Research")
         

@@ -20,13 +20,16 @@ import subprocess
 import requests
 
 class PodcastGenerator:
-    def __init__(self, articles_file: str = "filtered_articles.txt"):
+    def __init__(self, articles_file: str = "filtered_articles.txt", config_file: str = None):
         self.articles_file = articles_file
         self.articles = []
         self.selected_articles = []
         
+        # Load configuration
+        self.config = self.load_config(config_file)
+        
         # Impact keywords and their weights
-        self.impact_keywords = {
+        self.impact_keywords = self.config.get('impact_scoring', {}).get('keywords', {
             'clinical trial': 5,
             'fda': 5,
             'approval': 5,
@@ -45,10 +48,10 @@ class PodcastGenerator:
             'study': 2,
             'research': 2,
             'development': 2
-        }
+        })
         
         # Topic categories for diversity
-        self.topic_categories = {
+        self.topic_categories = self.config.get('topic_categories', {
             'therapeutics': ['treatment', 'therapy', 'drug', 'cure', 'clinical trial', 'fda', 'approval'],
             'diagnostics': ['diagnostic', 'detection', 'screening', 'test', 'biomarker'],
             'research': ['research', 'study', 'discovery', 'breakthrough', 'novel'],
@@ -59,7 +62,32 @@ class PodcastGenerator:
             'cancer': ['cancer', 'oncology', 'tumor', 'carcinoma', 'leukemia'],
             'rare_disease': ['rare disease', 'orphan', 'genetic disorder'],
             'infectious_disease': ['infection', 'virus', 'bacterial', 'pathogen', 'vaccine']
-        }
+        })
+    
+    def load_config(self, config_file: str = None) -> Dict:
+        """Load configuration from JSON file."""
+        default_config_file = "config.json"
+        
+        # Determine which config file to use
+        if config_file is None:
+            config_file = default_config_file
+        
+        # Try to load the config file
+        if os.path.exists(config_file):
+            try:
+                with open(config_file, 'r', encoding='utf-8') as f:
+                    config = json.load(f)
+                    print(f"Loaded configuration from: {config_file}")
+                    return config
+            except Exception as e:
+                print(f"Warning: Could not load config file '{config_file}': {e}")
+                print("Using default configuration values.")
+        else:
+            if config_file != default_config_file:
+                print(f"Warning: Config file '{config_file}' not found. Using default configuration values.")
+        
+        # Return empty dict to use defaults in __init__
+        return {}
         
     def parse_articles_file(self) -> List[Dict]:
         """Parse the filtered articles file and extract article information."""
@@ -153,26 +181,33 @@ class PodcastGenerator:
         score = 0.0
         text = f"{article.get('title', '')} {article.get('content', '')}".lower()
         
+        # Get config values with defaults
+        impact_config = self.config.get('impact_scoring', {})
+        occurrence_multiplier = impact_config.get('occurrence_multiplier', 2)
+        content_length_threshold = impact_config.get('content_length_threshold', 300)
+        content_length_bonus = impact_config.get('content_length_bonus', 1)
+        recency_bonus = impact_config.get('recency_bonus', {'day1': 2, 'day3': 1})
+        
         # Keyword scoring
         for keyword, weight in self.impact_keywords.items():
             if keyword in text:
                 score += weight
         
         # Occurrence bonus
-        score += article.get('occurrences', 1) * 2
+        score += article.get('occurrences', 1) * occurrence_multiplier
         
         # Content length bonus (longer articles may have more substance)
         content_length = article.get('content_length', 0)
-        if content_length > 300:
-            score += 1
+        if content_length > content_length_threshold:
+            score += content_length_bonus
         
         # Recency bonus (more recent articles get slight priority)
         if article.get('published_date'):
             days_old = (datetime.now() - article['published_date']).days
             if days_old <= 1:
-                score += 2
+                score += recency_bonus.get('day1', 2)
             elif days_old <= 3:
-                score += 1
+                score += recency_bonus.get('day3', 1)
         
         return score
     
@@ -192,10 +227,33 @@ class PodcastGenerator:
         else:
             return 'general'
     
-    def select_articles_hybrid(self, articles: List[Dict], target_duration: int = 600) -> List[Dict]:
+    def select_articles_hybrid(self, articles: List[Dict], target_duration: int = None) -> List[Dict]:
         """Select articles using hybrid approach for target duration (in seconds)."""
         if not articles:
             return []
+        
+        # Get config values with defaults
+        selection_config = self.config.get('article_selection', {})
+        time_config = self.config.get('time_allocation', {})
+        
+        # Use target_duration from config if not provided
+        if target_duration is None:
+            target_duration = self.config.get('target_duration_seconds', 600)
+        
+        max_main_stories = selection_config.get('max_main_stories', 6)
+        max_quick_hits = selection_config.get('max_quick_hits', 12)
+        main_stories_candidates = selection_config.get('main_stories_candidates', 10)
+        quick_hits_candidates = selection_config.get('quick_hits_candidates', 15)
+        max_main_stories_per_topic = selection_config.get('max_main_stories_per_topic', 2)
+        max_quick_hits_per_topic = selection_config.get('max_quick_hits_per_topic', 3)
+        main_story_duration = selection_config.get('main_story_duration_seconds', 180)
+        quick_hit_duration = selection_config.get('quick_hit_duration_seconds', 20)
+        enable_temporal_distribution = selection_config.get('enable_temporal_distribution', False)
+        temporal_periods = selection_config.get('temporal_periods', 12)  # Default: 12 months
+        
+        main_stories_percent = time_config.get('main_stories_percent', 0.6)
+        quick_hits_percent = time_config.get('quick_hits_percent', 0.3)
+        analysis_percent = time_config.get('analysis_percent', 0.1)
         
         # Calculate impact scores and classify topics
         for article in articles:
@@ -205,44 +263,105 @@ class PodcastGenerator:
         # Sort by impact score
         articles.sort(key=lambda x: x['impact_score'], reverse=True)
         
+        # If temporal distribution is enabled, organize articles by time periods
+        if enable_temporal_distribution:
+            # Calculate date range
+            dates = [a['published_date'] for a in articles if a.get('published_date')]
+            if dates:
+                min_date = min(dates)
+                max_date = max(dates)
+                date_range_days = (max_date - min_date).days
+                
+                if date_range_days > 0:
+                    period_duration = date_range_days / temporal_periods
+                    
+                    # Assign each article to a time period
+                    for article in articles:
+                        if article.get('published_date'):
+                            days_from_start = (article['published_date'] - min_date).days
+                            article['temporal_period'] = int(days_from_start / period_duration) if period_duration > 0 else 0
+                        else:
+                            article['temporal_period'] = -1  # No date
+                    
+                    print(f"Temporal distribution enabled: {temporal_periods} periods over {date_range_days} days")
+        
         selected_articles = []
         topic_coverage = defaultdict(int)
+        temporal_coverage = defaultdict(int) if enable_temporal_distribution else None
         estimated_duration = 0
         
         # Target time allocation
-        main_stories_time = target_duration * 0.6  # 60% for main stories
-        quick_hits_time = target_duration * 0.3    # 30% for quick hits
-        analysis_time = target_duration * 0.1      # 10% for analysis
+        main_stories_time = target_duration * main_stories_percent
+        quick_hits_time = target_duration * quick_hits_percent
+        analysis_time = target_duration * analysis_percent
         
-        # Select main stories (5-7 articles, 2-3 minutes each)
+        # Select main stories
         main_stories = []
-        for article in articles[:10]:  # Consider top 10
-            if len(main_stories) >= 6:  # Max 6 main stories
+        for article in articles[:main_stories_candidates]:
+            if len(main_stories) >= max_main_stories:
                 break
             
-            # Ensure topic diversity
-            if topic_coverage[article['topic']] < 2:  # Max 2 per topic
+            # Check topic diversity
+            topic_ok = topic_coverage[article['topic']] < max_main_stories_per_topic
+            
+            # Check temporal diversity if enabled
+            temporal_ok = True
+            if enable_temporal_distribution and temporal_coverage is not None:
+                period = article.get('temporal_period', -1)
+                if period >= 0:
+                    # Allow up to 2 articles per period for main stories
+                    max_per_period = max(1, max_main_stories // temporal_periods)
+                    temporal_ok = temporal_coverage[period] < max_per_period
+                else:
+                    # Articles without dates are less preferred
+                    temporal_ok = sum(temporal_coverage.values()) < max_main_stories * 0.8
+            
+            if topic_ok and temporal_ok:
                 main_stories.append(article)
                 topic_coverage[article['topic']] += 1
-                estimated_duration += 180  # 3 minutes per main story
+                if enable_temporal_distribution and temporal_coverage is not None:
+                    period = article.get('temporal_period', -1)
+                    if period >= 0:
+                        temporal_coverage[period] += 1
+                estimated_duration += main_story_duration
         
-        # Select quick hits (10-15 articles, 15-30 seconds each)
+        # Select quick hits
         quick_hits = []
         remaining_articles = [a for a in articles if a not in main_stories]
         
-        for article in remaining_articles[:15]:  # Consider next 15
-            if len(quick_hits) >= 12:  # Max 12 quick hits
+        for article in remaining_articles[:quick_hits_candidates]:
+            if len(quick_hits) >= max_quick_hits:
                 break
             
-            # Ensure topic diversity
-            if topic_coverage[article['topic']] < 3:  # Max 3 per topic
+            # Check topic diversity
+            topic_ok = topic_coverage[article['topic']] < max_quick_hits_per_topic
+            
+            # Check temporal diversity if enabled (more lenient for quick hits)
+            temporal_ok = True
+            if enable_temporal_distribution and temporal_coverage is not None:
+                period = article.get('temporal_period', -1)
+                if period >= 0:
+                    # Allow more articles per period for quick hits
+                    max_per_period = max(2, max_quick_hits // temporal_periods)
+                    temporal_ok = temporal_coverage[period] < max_per_period
+                else:
+                    temporal_ok = True  # More lenient for quick hits
+            
+            if topic_ok and temporal_ok:
                 quick_hits.append(article)
                 topic_coverage[article['topic']] += 1
-                estimated_duration += 20  # 20 seconds per quick hit
+                if enable_temporal_distribution and temporal_coverage is not None:
+                    period = article.get('temporal_period', -1)
+                    if period >= 0:
+                        temporal_coverage[period] += 1
+                estimated_duration += quick_hit_duration
         
         selected_articles = main_stories + quick_hits
         
         print(f"Selected {len(main_stories)} main stories and {len(quick_hits)} quick hits")
+        if enable_temporal_distribution and temporal_coverage:
+            periods_covered = len([p for p, count in temporal_coverage.items() if count > 0])
+            print(f"Temporal coverage: {periods_covered}/{temporal_periods} periods")
         print(f"Estimated duration: {estimated_duration/60:.1f} minutes")
         
         return selected_articles
@@ -252,9 +371,13 @@ class PodcastGenerator:
         if not articles:
             return "No articles selected for podcast generation."
         
+        # Get max_main_stories from config to separate main stories from quick hits
+        selection_config = self.config.get('article_selection', {})
+        max_main_stories = selection_config.get('max_main_stories', 6)
+        
         # Separate main stories and quick hits
-        main_stories = articles[:6]  # First 6 are main stories
-        quick_hits = articles[6:]    # Rest are quick hits
+        main_stories = articles[:max_main_stories]
+        quick_hits = articles[max_main_stories:]
         
         script = []
         
@@ -473,7 +596,7 @@ Summary:"""
         except Exception as e:
             print(f"Error saving podcast script: {e}")
     
-    def generate_podcast(self, target_duration: int = 600) -> str:
+    def generate_podcast(self, target_duration: int = None) -> str:
         """Generate a complete podcast from articles."""
         # Parse articles
         articles = self.parse_articles_file()
@@ -481,7 +604,7 @@ Summary:"""
         if not articles:
             return "No articles found to generate podcast."
         
-        # Select articles using hybrid approach
+        # Select articles using hybrid approach (uses config if target_duration is None)
         selected_articles = self.select_articles_hybrid(articles, target_duration)
         
         if not selected_articles:
@@ -509,18 +632,25 @@ Examples:
                        help='Input articles file (default: filtered_articles.txt)')
     parser.add_argument('--output', '-o', default='podcast_script.txt',
                        help='Output script file (default: podcast_script.txt)')
-    parser.add_argument('--duration', '-d', type=int, default=600,
-                       help='Target duration in seconds (default: 600 = 10 minutes)')
+    parser.add_argument('--duration', '-d', type=int, default=None,
+                       help='Target duration in seconds (overrides config, default: use config value)')
+    parser.add_argument('--config', '-c', default=None,
+                       help='Configuration file path (default: config.json)')
     
     args = parser.parse_args()
     
     # Initialize generator
-    generator = PodcastGenerator(args.input)
+    generator = PodcastGenerator(args.input, args.config)
     
-    print(f"Generating {args.duration/60:.1f}-minute podcast from {args.input}")
+    # Use duration from args or config
+    duration = args.duration
+    if duration is None:
+        duration = generator.config.get('target_duration_seconds', 600)
+    
+    print(f"Generating {duration/60:.1f}-minute podcast from {args.input}")
     
     # Generate podcast
-    script = generator.generate_podcast(args.duration)
+    script = generator.generate_podcast(duration)
     
     # Save script
     generator.save_podcast_script(script, args.output)

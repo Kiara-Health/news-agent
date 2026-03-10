@@ -1,0 +1,61 @@
+{
+  "article_selection": {
+    "max_main_stories": 12,
+    "max_quick_hits": 18,
+    "main_stories_candidates": 30,
+    "quick_hits_candidates": 40,
+    "max_main_stories_per_topic": 3,
+    "max_quick_hits_per_topic": 4,
+    "main_story_duration_seconds": 150,
+    "quick_hit_duration_seconds": 20,
+    "enable_temporal_distribution": true,
+    "temporal_periods": 12
+  },
+  "time_allocation": {
+    "main_stories_percent": 0.65,
+    "quick_hits_percent": 0.25,
+    "analysis_percent": 0.1
+  },
+  "target_duration_seconds": 1800,
+  "impact_scoring": {
+    "keywords": {
+      "clinical trial": 5,
+      "fda": 5,
+      "approval": 5,
+      "breakthrough": 4,
+      "discovery": 4,
+      "first": 4,
+      "novel": 4,
+      "treatment": 3,
+      "cure": 3,
+      "drug": 3,
+      "therapy": 3,
+      "funding": 2,
+      "investment": 2,
+      "partnership": 2,
+      "collaboration": 2,
+      "study": 2,
+      "research": 2,
+      "development": 2
+    },
+    "occurrence_multiplier": 2,
+    "content_length_threshold": 300,
+    "content_length_bonus": 1,
+    "recency_bonus": {
+      "day1": 0,
+      "day3": 0
+    }
+  },
+  "topic_categories": {
+    "therapeutics": ["treatment", "therapy", "drug", "cure", "clinical trial", "fda", "approval"],
+    "diagnostics": ["diagnostic", "detection", "screening", "test", "biomarker"],
+    "research": ["research", "study", "discovery", "breakthrough", "novel"],
+    "industry": ["funding", "investment", "partnership", "collaboration", "company"],
+    "technology": ["technology", "platform", "tool", "device", "ai", "machine learning"],
+    "genetics": ["gene", "genetic", "dna", "rna", "genome", "crispr"],
+    "microbiome": ["microbiome", "bacteria", "microbial", "gut", "microbiome"],
+    "cancer": ["cancer", "oncology", "tumor", "carcinoma", "leukemia"],
+    "rare_disease": ["rare disease", "orphan", "genetic disorder"],
+    "infectious_disease": ["infection", "virus", "bacterial", "pathogen", "vaccine"]
+  }
+}

@@ -7,6 +7,7 @@ This script orchestrates the complete biotech news pipeline:
 2. Date Range Filtering
 3. Podcast Generation
 4. LinkedIn Post Creation
+5. Banner Image Prompt Generation
 
 All output files are organized in a specified directory structure.
 """
@@ -20,9 +21,10 @@ from pathlib import Path
 import shutil
 
 class BiotechPipeline:
-    def __init__(self, output_dir: str = "output", date_range: tuple = None):
+    def __init__(self, output_dir: str = "output", date_range: tuple = None, config_file: str = None):
         self.output_dir = Path(output_dir)
         self.date_range = date_range
+        self.config_file = config_file
         self.timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         self.run_id = f"run_{self.timestamp}"
         
@@ -35,6 +37,7 @@ class BiotechPipeline:
         self.podcast_file = self.output_dir / self.run_id / "podcast_script.txt"
         self.linkedin_post_file = self.output_dir / self.run_id / "linkedin_post.txt"
         self.linkedin_compact_file = self.output_dir / self.run_id / "linkedin_post_compact.txt"
+        self.banner_prompt_file = self.output_dir / self.run_id / "banner_image_prompt.txt"
         self.pipeline_log_file = self.output_dir / self.run_id / "pipeline_log.txt"
         
     def setup_directories(self):
@@ -84,7 +87,14 @@ class BiotechPipeline:
                     print(f"Output: {result.stdout.strip()}")
                 return True
             else:
-                self.log_step(step_name, f"Command failed: {result.stderr}", success=False)
+                error_msg = result.stderr.strip() if result.stderr else "No error message"
+                if not error_msg and result.stdout:
+                    error_msg = result.stdout.strip()
+                if not error_msg:
+                    error_msg = f"Command returned exit code {result.returncode}"
+                self.log_step(step_name, f"Command failed: {error_msg}", success=False)
+                if result.stdout and result.returncode != 0:
+                    print(f"Command output: {result.stdout.strip()}")
                 return False
                 
         except Exception as e:
@@ -150,6 +160,10 @@ class BiotechPipeline:
             "--output", str(self.podcast_file)
         ]
         
+        # Add config file argument if provided
+        if self.config_file:
+            command.extend(["--config", self.config_file])
+        
         success = self.run_command(command, "Podcast Generation")
         
         if success:
@@ -196,9 +210,34 @@ class BiotechPipeline:
             
         return success_standard and success_compact
     
+    def step_5_generate_banner_prompt(self) -> bool:
+        """Step 5: Generate banner image prompt using OpenAI ChatGPT."""
+        command = [
+            "python3", "banner_prompt_generator.py",
+            "--podcast", str(self.podcast_file),
+            "--output", str(self.banner_prompt_file)
+        ]
+        
+        success = self.run_command(command, "Banner Image Prompt Generation")
+        
+        if success:
+            # Move to final directory
+            final_file = self.output_dir / self.run_id / "final" / "banner_image_prompt.txt"
+            if self.banner_prompt_file.exists():
+                shutil.move(str(self.banner_prompt_file), str(final_file))
+                self.banner_prompt_file = final_file
+            else:
+                self.log_step("Banner Image Prompt Generation", "banner_image_prompt.txt not found after generation", success=False)
+                return False
+            
+        return success
+    
     def create_summary_report(self):
         """Create a summary report of the pipeline run."""
         report_file = self.output_dir / self.run_id / "pipeline_summary.txt"
+        
+        # Check which files actually exist
+        banner_prompt_exists = self.banner_prompt_file.exists()
         
         with open(report_file, 'w', encoding='utf-8') as f:
             f.write("BIOTECH NEWS PIPELINE SUMMARY\n")
@@ -219,6 +258,8 @@ class BiotechPipeline:
             f.write(f"Podcast Script: {self.podcast_file}\n")
             f.write(f"LinkedIn Post (Standard): {self.linkedin_post_file}\n")
             f.write(f"LinkedIn Post (Compact): {self.linkedin_compact_file}\n")
+            if banner_prompt_exists:
+                f.write(f"Banner Image Prompt: {self.banner_prompt_file}\n")
             f.write(f"Pipeline Log: {self.pipeline_log_file}\n\n")
             
             f.write("DIRECTORY STRUCTURE:\n")
@@ -231,8 +272,14 @@ class BiotechPipeline:
             f.write("-" * 20 + "\n")
             f.write("1. Review the podcast script in final/podcast_script.txt\n")
             f.write("2. Copy the LinkedIn post content from final/linkedin_post.txt\n")
-            f.write("3. Post to LinkedIn with the generated content\n")
-            f.write("4. Use the compact version if you prefer shorter posts\n")
+            if banner_prompt_exists:
+                f.write("3. Use the banner image prompt from final/banner_image_prompt.txt to generate a LinkedIn banner\n")
+                f.write("4. Post to LinkedIn with the generated content and banner\n")
+                f.write("5. Use the compact version if you prefer shorter posts\n")
+            else:
+                f.write("3. Post to LinkedIn with the generated content\n")
+                f.write("4. Use the compact version if you prefer shorter posts\n")
+                f.write("5. Note: Banner image prompt generation failed - check pipeline log for details\n")
         
         print(f"Pipeline summary saved to: {report_file}")
     
@@ -253,7 +300,8 @@ class BiotechPipeline:
             ("RSS Feed Parsing", self.step_1_parse_rss_feeds),
             ("Date Range Filtering", self.step_2_filter_by_date_range),
             ("Podcast Generation", self.step_3_generate_podcast),
-            ("LinkedIn Post Creation", self.step_4_create_linkedin_posts)
+            ("LinkedIn Post Creation", self.step_4_create_linkedin_posts),
+            ("Banner Image Prompt Generation", self.step_5_generate_banner_prompt)
         ]
         
         all_success = True
@@ -277,6 +325,7 @@ class BiotechPipeline:
             print("🎉 Pipeline completed successfully!")
             print(f"📂 All files saved to: {self.output_dir / self.run_id}")
             print(f"📝 LinkedIn posts ready in: {self.output_dir / self.run_id / 'final'}")
+            print(f"🎨 Banner image prompt ready in: {self.output_dir / self.run_id / 'final'}")
         else:
             print("❌ Pipeline failed. Check the log file for details.")
         
@@ -292,6 +341,7 @@ Examples:
   python pipeline.py
   python pipeline.py --output my_output --start-date 2025-08-18 --end-date 2025-08-24
   python pipeline.py --output weekly_reports --days 7
+  python pipeline.py --config my_config.json
         """
     )
     
@@ -303,6 +353,8 @@ Examples:
                        help='End date for filtering (YYYY-MM-DD)')
     parser.add_argument('--days', '-d', type=int,
                        help='Number of days to look back (default: 7)')
+    parser.add_argument('--config', '-c', default=None,
+                       help='Configuration file path (default: config.json)')
     
     args = parser.parse_args()
     
@@ -316,7 +368,7 @@ Examples:
         date_range = (start_date.strftime("%Y-%m-%d"), end_date.strftime("%Y-%m-%d"))
     
     # Initialize and run pipeline
-    pipeline = BiotechPipeline(args.output, date_range)
+    pipeline = BiotechPipeline(args.output, date_range, args.config)
     success = pipeline.run_pipeline()
     
     sys.exit(0 if success else 1)
