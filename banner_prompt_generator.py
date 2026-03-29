@@ -32,7 +32,7 @@ except ImportError:
     sys.exit(1)
 
 class BannerPromptGenerator:
-    def __init__(self, podcast_file: str, openai_api_key: str = None):
+    def __init__(self, podcast_file: str, openai_api_key: str = None, domain: str = None):
         self.podcast_file = podcast_file
         self.openai_api_key = openai_api_key or os.getenv('OPENAI_API_KEY')
         
@@ -41,25 +41,22 @@ class BannerPromptGenerator:
         
         self.client = OpenAI(api_key=self.openai_api_key)
         
-        # Template for generating the prompt
-        self.prompt_template = """Given is the following summary of biotechnology news: 
-
-
-
-{PODCAST_SCRIPT}
-
-
-
-Generate a precisely worded prompt that we can use to generate a LinkedIn banner image (or any landscape infographic-style image) that visually summarizes the content. 
-
-CRITICAL REQUIREMENTS:
-- The image must contain ABSOLUTELY NO text, writing, words, letters, numbers, or any form of written language
-- The image must be purely visual - use symbols, icons, illustrations, colors, and visual metaphors only
-- Do not include any labels, captions, titles, or text overlays
-- The prompt should explicitly state "no text", "no writing", "no words", "no letters" to ensure the image generator understands this requirement
-- Optimize the prompt for a LinkedIn banner with the aspect ratio of 1584×396
-
-The generated prompt should be suitable for DALL-E, Midjourney, or similar AI image generators."""
+        # Template for generating the prompt — domain can be overridden by caller
+        self.domain = domain or "biotechnology"
+        self.prompt_template = (
+            "Given is the following summary of {domain} news:\n\n\n\n"
+            "{{PODCAST_SCRIPT}}\n\n\n\n"
+            "Generate a precisely worded prompt that we can use to generate a LinkedIn banner image "
+            "(or any landscape infographic-style image) that visually summarizes the content.\n\n"
+            "CRITICAL REQUIREMENTS:\n"
+            "- The image must contain ABSOLUTELY NO text, writing, words, letters, numbers, or any form of written language\n"
+            "- The image must be purely visual - use symbols, icons, illustrations, colors, and visual metaphors only\n"
+            "- Do not include any labels, captions, titles, or text overlays\n"
+            '- The prompt should explicitly state "no text", "no writing", "no words", "no letters" '
+            "to ensure the image generator understands this requirement\n"
+            "- Optimize the prompt for a LinkedIn banner with the aspect ratio of 1584×396\n\n"
+            "The generated prompt should be suitable for DALL-E, Midjourney, or similar AI image generators."
+        ).format(domain=self.domain)
     
     def read_podcast_script(self) -> str:
         """Read the podcast script from file."""

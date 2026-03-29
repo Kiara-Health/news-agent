@@ -12,11 +12,26 @@ import os
 from typing import List, Dict, Tuple
 
 class LinkedInExtractor:
-    def __init__(self, podcast_file: str = "complete_sentences.txt", articles_file: str = "enhanced_filtered_articles.txt"):
+    def __init__(self, podcast_file: str = "complete_sentences.txt",
+                 articles_file: str = "enhanced_filtered_articles.txt",
+                 config_file: str = None):
         self.podcast_file = podcast_file
         self.articles_file = articles_file
         self.article_data = {}
         self.podcast_articles = []
+        self.pub_settings = self._load_pub_settings(config_file)
+
+    def _load_pub_settings(self, config_file: str = None) -> dict:
+        """Load publication_settings from config JSON if provided."""
+        import json, os
+        for path in [config_file, "config.json"]:
+            if path and os.path.exists(path):
+                try:
+                    with open(path, "r", encoding="utf-8") as fh:
+                        return json.load(fh).get("publication_settings", {})
+                except Exception:
+                    pass
+        return {}
         
     def parse_articles_file(self) -> Dict[str, str]:
         """Parse the articles file to get title-URL mappings."""
@@ -136,11 +151,26 @@ class LinkedInExtractor:
         if not title_url_map:
             return "No article data available for URL mapping."
         
+        # Read publication settings
+        linkedin_title = self.pub_settings.get("linkedin_title", "🔬 This Week's Top News")
+        linkedin_intro = self.pub_settings.get("linkedin_intro", "Here are the key developments this week:")
+        disclaimer = self.pub_settings.get(
+            "linkedin_disclaimer",
+            "Disclaimer: This newsletter includes content generated with the help of large language "
+            "models (LLM). Although care has been taken to ensure accuracy, LLMs can sometimes "
+            "produce incorrect or misleading information. Readers are advised to independently "
+            "verify any details, provide feedback, and reach out."
+        )
+        hashtags = self.pub_settings.get(
+            "linkedin_hashtags",
+            "#Science #Innovation #Healthcare #Research"
+        )
+
         # Generate LinkedIn post
         post_lines = []
-        post_lines.append("🔬 This Week's Top Biotech News")
+        post_lines.append(linkedin_title)
         post_lines.append("")
-        post_lines.append("Here are the key developments in biotechnology this week:")
+        post_lines.append(linkedin_intro)
         post_lines.append("")
         
         # Add articles with URLs as clickable titles
@@ -154,9 +184,9 @@ class LinkedInExtractor:
                 post_lines.append(f"{i}. {title}")
                 post_lines.append("")
         
-        post_lines.append("Disclaimer: This podcast includes content generated with the help of large language models (LLM). Although care has been taken to ensure accuracy, LLMs can sometimes produce incorrect or misleading information. Listeners are advised to independently verify any details, provide feedback, and reach out.")
+        post_lines.append(disclaimer)
         post_lines.append("")
-        post_lines.append("#Biotech #Biotechnology #Science #Innovation #Healthcare #Research")
+        post_lines.append(hashtags)
         
         return "\n".join(post_lines)
     
@@ -174,11 +204,26 @@ class LinkedInExtractor:
         if not title_url_map:
             return "No article data available for URL mapping."
         
+        # Read publication settings
+        linkedin_title = self.pub_settings.get("linkedin_title", "🔬 This Week's Top News")
+        linkedin_intro = self.pub_settings.get("linkedin_intro", "Key developments this week:")
+        disclaimer = self.pub_settings.get(
+            "linkedin_disclaimer",
+            "Disclaimer: This newsletter includes content generated with the help of large language "
+            "models (LLM). Although care has been taken to ensure accuracy, LLMs can sometimes "
+            "produce incorrect or misleading information. Readers are advised to independently "
+            "verify any details, provide feedback, and reach out."
+        )
+        hashtags = self.pub_settings.get(
+            "linkedin_hashtags",
+            "#Science #Innovation #Healthcare #Research"
+        )
+
         # Generate compact LinkedIn post
         post_lines = []
-        post_lines.append("🔬 This Week's Top Biotech News")
+        post_lines.append(linkedin_title)
         post_lines.append("")
-        post_lines.append("Key developments in biotechnology:")
+        post_lines.append(linkedin_intro)
         post_lines.append("")
         
         # Add articles with URLs as clickable titles in compact format
@@ -190,9 +235,9 @@ class LinkedInExtractor:
                 post_lines.append(f"{i}. {title}")
         
         post_lines.append("")
-        post_lines.append("Disclaimer: This podcast includes content generated with the help of large language models (LLM). Although care has been taken to ensure accuracy, LLMs can sometimes produce incorrect or misleading information. Listeners are advised to independently verify any details, provide feedback, and reach out.")
+        post_lines.append(disclaimer)
         post_lines.append("")
-        post_lines.append("#Biotech #Biotechnology #Science #Innovation #Healthcare #Research")
+        post_lines.append(hashtags)
         
         return "\n".join(post_lines)
     
@@ -228,11 +273,13 @@ Examples:
                        help='Output LinkedIn post file (default: linkedin_post.txt)')
     parser.add_argument('--compact', '-c', action='store_true',
                        help='Generate compact format LinkedIn post')
+    parser.add_argument('--config', default=None,
+                       help='Config JSON file for publication settings (default: config.json)')
     
     args = parser.parse_args()
     
     # Initialize extractor
-    extractor = LinkedInExtractor(args.podcast, args.articles)
+    extractor = LinkedInExtractor(args.podcast, args.articles, args.config)
     
     print(f"Extracting LinkedIn post from {args.podcast}")
     

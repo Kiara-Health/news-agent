@@ -1,6 +1,27 @@
-# Biotech News Pipeline
+# Fertility News Pipeline
 
-A comprehensive automation system that transforms RSS feeds into professional content ready for distribution. This pipeline orchestrates the entire workflow from data collection to social media posting, with organized output storage and detailed logging.
+This repository now contains two generations of pipeline tooling:
+
+- **Current production path (recommended):** `pipeline_fertility.py` + `feed-ingestor` + `selection_policy.py` + `newsletter_composer.py`
+- **Legacy path (kept for backward compatibility):** `pipeline.py`, `rss_parser.py`, `query_articles.py`, `sources.txt`
+
+If you are running fertility/reproductive-medicine issues, use the current path only.
+
+## Current Production Workflow (Recommended)
+
+1. `feed-ingestor` fetches configured feeds from `feed-ingestor/news-sources.yaml`
+2. `ingestor.bridge` converts JSONL to `filtered_articles.txt`
+3. `podcast_generator.py` scores, applies hard eligibility gates, selects, summarizes
+4. `newsletter_composer.py` builds the reader-facing newsletter
+5. `linkedin_extractor.py` creates social variants
+
+Run it with:
+
+```bash
+python pipeline_fertility.py --days 7 --force-refresh
+```
+
+For a non-technical overview, see `PIPELINE_OVERVIEW.md`.
 
 ## 🚀 Complete Workflow
 
@@ -33,6 +54,7 @@ output/
 
 | Script | Purpose | Input | Output |
 |--------|---------|-------|--------|
+| `pipeline_fertility.py` | **Current orchestrator (recommended)** | `feed-ingestor/news-sources.yaml` + config | Full fertility newsletter package |
 | `pipeline.py` | **Main orchestrator** | RSS feeds, date range | Complete pipeline output |
 | `rss_parser.py` | Parse RSS feeds | `sources.txt` | Articles with metadata |
 | `query_articles.py` | Filter by date range | Articles summary | Filtered articles |
@@ -40,7 +62,8 @@ output/
 | `linkedin_extractor.py` | Create LinkedIn posts | Podcast script | Social media content |
 
 ### **Supporting Files:**
-- `sources.txt` - RSS feed URLs
+- `feed-ingestor/news-sources.yaml` - active fertility RSS source list used by `pipeline_fertility.py`
+- `sources.txt` - legacy RSS feed list used by `rss_parser.py` only
 - `PIPELINE_README.md` - Detailed pipeline documentation
 - `PODCAST_README.md` - Podcast generator documentation
 - `LINKEDIN_README.md` - LinkedIn extractor documentation
@@ -71,7 +94,7 @@ source .venv/bin/activate  # On macOS/Linux
 cp .env.example .env
 # Edit .env and add your OPENAI_API_KEY
 
-# Ensure sources.txt contains your RSS feed URLs
+# For the current fertility pipeline, edit ../feed-ingestor/news-sources.yaml
 ```
 
 #### Option 2: Using pip (Traditional)
@@ -84,22 +107,25 @@ pip install -r requirements.txt
 cp .env.example .env
 # Edit .env and add your OPENAI_API_KEY
 
-# Ensure sources.txt contains your RSS feed URLs
+# For the current fertility pipeline, edit ../feed-ingestor/news-sources.yaml
 ```
 
 ### **Run Complete Pipeline:**
 ```bash
-# Default: Last 7 days
-python pipeline.py
+# Current fertility pipeline (recommended): last 7 days
+python pipeline_fertility.py --days 7
 
-# Custom date range
-python pipeline.py --start-date 2025-08-18 --end-date 2025-08-24
+# Force-refresh feeds (ignore ETag cache for this run)
+python pipeline_fertility.py --days 7 --force-refresh
 
 # Custom output directory
-python pipeline.py --output my_reports --days 14
+python pipeline_fertility.py --output my_reports --days 14
 
 # Single day analysis
-python pipeline.py --output daily_reports --days 1
+python pipeline_fertility.py --output daily_reports --days 1
+
+# Legacy pipeline (kept for compatibility)
+# python pipeline.py
 ```
 
 ### **Individual Scripts:**
@@ -218,7 +244,10 @@ Key developments in biotechnology:
 
 ## 🔧 Configuration
 
-### **RSS Sources (`sources.txt`):**
+### **RSS Sources**
+
+**Current fertility pipeline:** `../feed-ingestor/news-sources.yaml`  
+**Legacy parser path:** `sources.txt` (example below)
 ```
 https://phys.org/rss-feed/biology-news/
 https://www.sciencedaily.com/rss/health_medicine/biotechnology.xml

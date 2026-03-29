@@ -5,6 +5,10 @@ RSS Feed Parser
 This script reads RSS feed URLs from sources.txt, parses each feed,
 and extracts article information including title, URL, publishing date, and content.
 Includes duplicate detection and occurrence tracking.
+
+NOTE:
+This module is part of the legacy pipeline path and is not used by
+`pipeline_fertility.py`, which now uses `feed-ingestor/news-sources.yaml`.
 """
 
 import feedparser

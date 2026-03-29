@@ -5,6 +5,33 @@ All notable changes to the Biotech News Pipeline project will be documented in t
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased] - 2026-03-29
+
+### Added
+- `pipeline_fertility.py` force-refresh support (`--force-refresh`) passed through to feed ingestion.
+- New default source configuration: `feed-ingestor/news-sources.yaml`.
+- Explicit freshness attribution across ingestion/selection:
+  - `date_source`
+  - `used_fallback_date`
+  - `freshness_confidence`
+- Canonical per-item selection diagnostics fields:
+  - `article_type_canonical`
+  - `evidence_sufficiency_canonical`
+  - `novelty_state_canonical`
+  - `coverage_candidate`
+  - `publishable_candidate`
+- Source-cap audit snapshot in report diagnostics (`strict_caps`, `relaxed_caps`, `caps_off`).
+- Human-readable high-level pipeline guide for non-technical audiences: `PIPELINE_OVERVIEW.md`.
+
+### Changed
+- Main pipeline defaults now target fertility-source config (`news-sources.yaml`) instead of example config.
+- Selection flow remains gate-first with explicit issue state reporting.
+- Bridge output now carries freshness metadata so downstream stages can distinguish missing publication dates from fallback freshness dates.
+
+### Fixed
+- `.env` loading now happens at pipeline startup as well, so banner pre-check and downstream LLM calls are consistent.
+- Diagnostics summary now exposes clearer counters and fallback-date usage.
+
 ## [1.0.0] - 2025-08-27
 
 ### Added

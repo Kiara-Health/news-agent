@@ -1,0 +1,420 @@
+{
+  "_comment": "Fertility & Reproductive Medicine pipeline configuration.",
+
+  "openai_model": "gpt-5.4",
+
+  "publication_settings": {
+    "podcast_title": "Fertility & Reproductive Medicine Weekly",
+    "podcast_intro": "Welcome to this week's fertility and reproductive medicine news roundup. I'm your host, and today we're covering the latest research and clinical developments from across the field — from trying to conceive naturally and preconception care, to IVF, endometriosis, male factor infertility, and beyond.",
+    "podcast_closing": "That wraps up this week's fertility and reproductive medicine news. Thanks for listening, and we'll see you next week with more updates from the front lines of reproductive science.",
+    "linkedin_title": "🔬 This Week in Fertility & Reproductive Medicine",
+    "linkedin_intro": "Here are the key research developments and clinical updates in fertility and reproductive medicine this week:",
+    "linkedin_disclaimer": "Disclaimer: This newsletter includes content generated with the help of large language models (LLM). Although care has been taken to ensure accuracy, LLMs can sometimes produce incorrect or misleading information. Readers are advised to independently verify any clinical details and reach out with feedback.",
+    "linkedin_hashtags": "#FertilityMedicine #ReproductiveMedicine #IVF #IUI #TryingToConceive #TTC #NaturalConception #Endometriosis #MaleInfertility #PreconceptionCare #EmbryologyResearch #MaternalHealth #FertilityResearch #ASRM #ESHRE",
+    "banner_domain": "fertility and reproductive medicine",
+    "topics_label": "reproductive medicine"
+  },
+
+  "article_selection": {
+    "max_main_stories": 5,
+    "max_quick_hits": 10,
+    "main_stories_candidates": 10,
+    "quick_hits_candidates": 15,
+    "max_main_stories_per_topic": 2,
+    "max_quick_hits_per_topic": 3,
+    "main_story_duration_seconds": 180,
+    "quick_hit_duration_seconds": 20
+  },
+
+  "time_allocation": {
+    "main_stories_percent": 0.6,
+    "quick_hits_percent": 0.3,
+    "analysis_percent": 0.1
+  },
+
+  "target_duration_seconds": 600,
+
+  "impact_scoring": {
+    "keywords": {
+
+      "randomized controlled trial": 6,
+      "rct": 6,
+      "systematic review": 5,
+      "meta-analysis": 5,
+      "clinical trial": 5,
+
+      "ivf": 5,
+      "in vitro fertilization": 5,
+      "embryo transfer": 5,
+      "live birth rate": 5,
+      "cumulative live birth": 5,
+      "endometriosis": 5,
+      "male infertility": 5,
+      "azoospermia": 5,
+
+      "trying to conceive": 4,
+      "ttc": 4,
+      "natural conception": 4,
+      "unexplained infertility": 4,
+      "subfertility": 4,
+      "time to pregnancy": 4,
+      "ovulation induction": 4,
+      "fertile window": 4,
+      "female infertility": 4,
+      "infertility evaluation": 4,
+      "infertility workup": 4,
+      "infertility diagnosis": 4,
+      "reproductive endocrinologist": 4,
+      "restorative reproductive medicine": 4,
+      "napro": 4,
+      "naprotechnology": 4,
+      "preconception": 4,
+      "pre-pregnancy": 4,
+      "preconception care": 4,
+      "preconception counseling": 4,
+      "fertility acupuncture": 4,
+      "ovarian reserve": 4,
+      "diminished ovarian reserve": 4,
+      "preimplantation genetic": 4,
+      "pgt": 4,
+      "pgd": 4,
+      "recurrent pregnancy loss": 4,
+      "recurrent miscarriage": 4,
+      "sperm dna fragmentation": 4,
+      "icsi": 4,
+      "intracytoplasmic sperm injection": 4,
+      "ovarian stimulation": 4,
+      "controlled ovarian hyperstimulation": 4,
+      "frozen embryo transfer": 4,
+      "vitrification": 4,
+      "amh": 4,
+      "anti-müllerian hormone": 4,
+      "polycystic ovary": 4,
+      "pcos": 4,
+      "implantation failure": 4,
+      "endometrial receptivity": 4,
+
+      "cycle tracking": 3,
+      "ovulation tracking": 3,
+      "timed intercourse": 3,
+      "intercourse timing": 3,
+      "anovulation": 3,
+      "ovulatory dysfunction": 3,
+      "luteal phase defect": 3,
+      "lifestyle modification": 3,
+      "lifestyle intervention": 3,
+      "weight management": 3,
+      "folic acid": 3,
+      "prenatal vitamin": 3,
+      "body mass index": 3,
+      "obesity": 3,
+      "bmi": 3,
+      "dhea": 3,
+      "dehydroepiandrosterone": 3,
+      "coenzyme q10": 3,
+      "coq10": 3,
+      "mind-body": 3,
+      "acupuncture": 3,
+      "integrative medicine": 3,
+      "complementary medicine": 3,
+      "rei": 3,
+      "fertility specialist": 3,
+      "assisted reproduction": 3,
+      "assisted reproductive technology": 3,
+      "infertility treatment": 3,
+      "sperm": 3,
+      "spermatogenesis": 3,
+      "oocyte": 3,
+      "blastocyst": 3,
+      "aneuploidy": 3,
+      "luteal phase": 3,
+      "pregnancy rate": 3,
+      "miscarriage rate": 3,
+      "ovulation": 3,
+      "gonadotropin": 3,
+      "fsh": 3,
+      "lh": 3,
+      "progesterone": 3,
+      "estradiol": 3,
+      "fertility preservation": 3,
+      "oocyte freezing": 3,
+      "egg freezing": 3,
+      "uterine": 3,
+      "hysteroscopy": 3,
+      "endometrium": 3,
+      "breakthrough": 3,
+      "novel": 3,
+      "first": 3,
+      "discovery": 3,
+
+      "getting pregnant": 2,
+      "chances of pregnancy": 2,
+      "conception": 2,
+      "preconception health": 2,
+      "alcohol": 2,
+      "smoking": 2,
+      "caffeine": 2,
+      "stress": 2,
+      "melatonin": 2,
+      "antioxidant": 2,
+      "dietary supplement": 2,
+      "meditation": 2,
+      "yoga": 2,
+      "naturopathic": 2,
+      "fertility clinic": 2,
+      "treatment": 2,
+      "therapy": 2,
+      "study": 2,
+      "research": 2,
+      "trial": 2
+    },
+    "occurrence_multiplier": 2,
+    "content_length_threshold": 300,
+    "content_length_bonus": 1,
+    "recency_bonus": {
+      "day1": 3,
+      "day3": 1
+    }
+  },
+
+  "topic_categories": {
+    "ivf_art": [
+      "ivf", "in vitro fertilization", "icsi", "embryo transfer",
+      "frozen embryo transfer", "controlled ovarian hyperstimulation",
+      "blastocyst", "embryo", "oocyte retrieval", "art"
+    ],
+    "embryology": [
+      "blastocyst", "embryo culture", "vitrification", "cryopreservation",
+      "embryo development", "time-lapse", "embryo grading"
+    ],
+    "genetics_pgt": [
+      "preimplantation genetic", "pgt", "pgd", "aneuploidy", "chromosomal",
+      "euploid", "aneuploid", "mosaicism", "cnv", "snp array"
+    ],
+    "endometriosis": [
+      "endometriosis", "adenomyosis", "endometrioma", "deep infiltrating",
+      "ovarian endometrioma"
+    ],
+    "male_infertility": [
+      "male infertility", "sperm", "spermatogenesis", "azoospermia",
+      "oligospermia", "sperm dna fragmentation", "varicocele", "semen analysis",
+      "testosterone", "male factor"
+    ],
+    "ovarian_reserve": [
+      "ovarian reserve", "amh", "anti-müllerian", "antral follicle count",
+      "diminished ovarian reserve", "poor ovarian response", "premature ovarian"
+    ],
+    "pcos": [
+      "polycystic ovary", "pcos", "hyperandrogenism", "anovulation",
+      "insulin resistance", "letrozole", "clomiphene"
+    ],
+    "endometrium_implantation": [
+      "endometrial receptivity", "implantation", "uterine", "endometrium",
+      "hysteroscopy", "asherman", "hydrosalpinx", "recurrent implantation failure"
+    ],
+    "pregnancy_outcomes": [
+      "live birth", "pregnancy rate", "miscarriage", "recurrent pregnancy loss",
+      "preeclampsia", "obstetric", "perinatal", "neonatal"
+    ],
+    "fertility_preservation": [
+      "fertility preservation", "oocyte freezing", "egg freezing",
+      "embryo freezing", "oncofertility", "social freezing"
+    ],
+    "hormones_pharmacology": [
+      "gonadotropin", "fsh", "lh", "progesterone", "estradiol",
+      "luteal phase support", "gnrh", "antagonist", "agonist", "letrozole",
+      "clomiphene", "hcg", "trigger"
+    ],
+    "research_review": [
+      "systematic review", "meta-analysis", "randomized controlled trial",
+      "rct", "cohort study", "observational"
+    ],
+    "natural_conception_ttc": [
+      "trying to conceive", "ttc", "natural conception", "unexplained infertility",
+      "subfertility", "time to pregnancy", "fertile window", "ovulation tracking",
+      "cycle tracking", "timed intercourse", "intercourse timing",
+      "ovulatory dysfunction", "luteal phase defect", "getting pregnant",
+      "chances of pregnancy", "conception", "spontaneous pregnancy",
+      "natural pregnancy", "ovulation induction"
+    ],
+    "preconception_care": [
+      "preconception", "pre-pregnancy", "preconception care", "preconception counseling",
+      "preconception health", "lifestyle modification", "weight management",
+      "folic acid", "prenatal vitamin", "body mass index", "obesity",
+      "underweight", "alcohol", "smoking", "caffeine", "stress",
+      "environmental exposure", "genetic counseling", "carrier screening",
+      "reproductive health", "menstrual cycle", "cycle regularity"
+    ],
+    "complementary_integrative": [
+      "acupuncture", "fertility acupuncture", "lifestyle intervention",
+      "integrative medicine", "complementary medicine", "mind-body",
+      "meditation", "yoga", "dietary supplement", "antioxidant",
+      "coenzyme q10", "coq10", "melatonin", "dhea", "dehydroepiandrosterone",
+      "naturopathic", "napro", "naprotechnology",
+      "restorative reproductive medicine", "mucus monitoring",
+      "natural family planning", "ovulation method"
+    ],
+    "reproductive_endocrinology": [
+      "reproductive endocrinologist", "rei", "fertility specialist",
+      "fertility clinic", "infertility evaluation", "infertility workup",
+      "infertility diagnosis", "infertility treatment", "female infertility",
+      "assisted reproduction", "assisted reproductive technology",
+      "ovulation disorder", "hormonal imbalance", "thyroid",
+      "hyperprolactinemia", "prolactin", "insulin resistance",
+      "metabolic syndrome", "specialist referral"
+    ]
+  },
+
+  "novelty_control": {
+    "_comment": "Cross-run repeat suppression using SQLite. History file lives next to the config.",
+    "history_path": "selection_history.db",
+    "suppress_previously_emitted": true,
+    "suppress_previously_seen": false,
+    "allow_repeat_after_days": 90,
+    "lookback_days": 14,
+    "identity_priority": ["doi", "pmid", "url", "fingerprint"],
+    "update_history_on_selection": true,
+    "update_history_on_publish": false
+  },
+
+  "source_diversity": {
+    "_comment": "Prevent a single journal from dominating the issue. Hard caps applied before final selection.",
+    "max_main_stories_per_source": 1,
+    "max_quick_hits_per_source": 2,
+    "max_total_selected_per_source": 3,
+    "min_distinct_sources_main": 2,
+    "min_distinct_sources_total": 3,
+    "allow_underfilled_issue_if_diversity_not_met": true,
+    "source_penalty_after_threshold": 0.3
+  },
+
+  "evidence_thresholds": {
+    "_comment": "Minimum pre-LLM evidence quality. Uses content-length heuristic before summariser runs.",
+    "min_main_story_sufficiency": 0.55,
+    "min_quick_hit_sufficiency": 0.20,
+    "min_main_story_confidence": "low",
+    "allow_abstract_only_main_story": true,
+    "allow_abstract_only_quick_hit": true,
+    "drop_if_no_findings_extracted": false,
+    "downgrade_if_findings_missing": true
+  },
+
+  "freshness_rules": {
+    "_comment": "Per-tier date requirements with explicit fallback freshness attribution.",
+    "require_published_at_for_main_story": true,
+    "require_published_at_for_quick_hit": false,
+    "max_age_days_main_story": 21,
+    "max_age_days_quick_hit": 30,
+    "fallback_date_sources": ["freshness_date", "updated_date", "first_seen_at", "fetched_at"],
+    "penalize_missing_date": true,
+    "missing_date_penalty": 2.0
+  },
+
+  "article_type_rules": {
+    "_comment": "Title-pattern classification takes priority. default_type=original_research so unclassified journal articles are treated as research.",
+    "explicit_patterns": {},
+    "default_type": "original_research",
+    "demote_types_for_main_story": [
+      "editorial", "letter", "correction", "erratum",
+      "retraction", "commentary"
+    ],
+    "exclude_types": ["correction", "erratum", "retraction"],
+    "review_type_labels": ["review", "systematic_review", "meta_analysis"]
+  },
+
+  "negative_scoring": {
+    "_comment": "Score penalties subtracted from impact_score before selection.",
+    "keywords": {},
+    "phrases": [],
+    "article_types": {
+      "editorial":   -3.0,
+      "letter":      -4.0,
+      "correction":  -10.0,
+      "erratum":     -10.0,
+      "retraction":  -10.0,
+      "commentary":  -2.0,
+      "guideline":   -1.0
+    },
+    "missing_metadata_penalties": {
+      "missing_published_date": -2.0,
+      "missing_findings":       -3.0,
+      "low_sufficiency":        -2.0
+    }
+  },
+
+  "main_story_rules": {
+    "_comment": "Hard eligibility gates. Prefer false negatives over false positives.",
+    "min_reportability_score": 0.0,
+    "min_impact_score": 3.0,
+    "require_nontrivial_findings": true,
+    "min_findings_length": 80,
+    "require_distinct_angle_from_other_main_stories": false,
+    "max_main_stories_same_source_family": 1,
+    "require_evidence_above_quick_hit_floor": true,
+    "eligible_article_types": [
+      "original_research",
+      "systematic_review",
+      "meta_analysis",
+      "rct",
+      "cohort_study",
+      "observational_study",
+      "case_report",
+      "guideline"
+    ],
+    "ineligible_article_types": [
+      "editorial", "commentary", "letter",
+      "correction", "erratum", "retraction"
+    ],
+    "disallow_if_findings_contain": [
+      "Detailed findings were not available",
+      "consult the primary source for methods and results",
+      "not available in the retrieved source text",
+      "The available text describes",
+      "This appears to be"
+    ]
+  },
+
+  "quick_hit_rules": {
+    "_comment": "More permissive than main stories; still gates on minimum quality.",
+    "min_evidence_sufficiency": 0.20,
+    "allow_abstract_only": true,
+    "require_title_and_url": true,
+    "max_age_days": 30,
+    "drop_if_explicitly_no_findings": false,
+    "disallow_if_findings_contain": [],
+    "ineligible_article_types": ["correction", "erratum", "retraction"]
+  },
+
+  "topic_assignment": {
+    "_comment": "Controls primary/secondary topic assignment from topic_categories keywords.",
+    "primary_topic_required": true,
+    "max_topics_per_article": 3,
+    "max_secondary_topics": 2,
+    "topic_priority": [
+      "male_factor",
+      "genetics_genomics",
+      "endometriosis",
+      "pcos",
+      "ovarian_reserve",
+      "fertility_preservation",
+      "art_ivf",
+      "embryology",
+      "implantation",
+      "pregnancy_outcomes",
+      "preconception_care",
+      "natural_conception_ttc",
+      "mental_health",
+      "hormones_pharmacology",
+      "complementary_integrative",
+      "reproductive_endocrinology",
+      "reviews"
+    ],
+    "min_keyword_hits_for_topic": 1,
+    "allow_secondary_topics": true
+  },
+
+  "selection_diagnostics": {
+    "_comment": "Per-item diagnostics emitted in the consolidated report.",
+    "enabled": true
+  }
+}
