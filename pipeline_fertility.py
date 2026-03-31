@@ -5,7 +5,7 @@ Fertility & Reproductive Medicine Newsletter Pipeline
 
 End-to-end orchestrator that connects:
 
-  1. feed-ingestor  — fetches fertility RSS/Atom feeds, normalises,
+  1. ingestor       — fetches fertility RSS/Atom feeds, normalises,
                       deduplicates, and annotates novelty
   2. bridge         — converts NormalizedItem JSONL → filtered_articles.txt
                       (the text format expected by downstream tools)
@@ -15,10 +15,8 @@ End-to-end orchestrator that connects:
 
 Prerequisites
 -------------
-* feed-ingestor package installed  (pip install -e ../feed-ingestor)
-* OPENAI_API_KEY set in the environment  (article summarisation and newsletter composition)
-* OPENAI_API_KEY set in environment or .env  (banner prompt generation)
-* ../feed-ingestor/news-sources.yaml configured with fertility feed URLs
+* OPENAI_API_KEY set in the environment or .env
+* news-sources.yaml configured with fertility feed URLs (see ingestor-config.example.yaml)
 
 Usage examples
 --------------
@@ -52,12 +50,12 @@ from typing import List, Optional
 from dotenv import load_dotenv
 
 # ---------------------------------------------------------------------------
-# Paths — adjust if the repo layout changes
+# Paths
 # ---------------------------------------------------------------------------
 
 _SCRIPT_DIR = Path(__file__).parent.absolute()
-_INGESTOR_DIR = _SCRIPT_DIR.parent / "feed-ingestor"
-_DEFAULT_INGESTOR_CONFIG = _INGESTOR_DIR / "news-sources.yaml"
+_INGESTOR_DIR = _SCRIPT_DIR          # ingestor package now lives alongside this script
+_DEFAULT_INGESTOR_CONFIG = _SCRIPT_DIR / "news-sources.yaml"
 _DEFAULT_FERTILITY_CONFIG = _SCRIPT_DIR / "config.fertility.json"
 _DEFAULT_HISTORY_DB = _SCRIPT_DIR / "ingestor_history.db"
 
@@ -471,7 +469,7 @@ def main() -> None:
         "--ingestor-config",
         default=str(_DEFAULT_INGESTOR_CONFIG),
         dest="ingestor_config",
-        help="Path to feed-ingestor YAML config (default: feed-ingestor/news-sources.yaml).",
+        help="Path to ingestor YAML config (default: news-sources.yaml).",
     )
     parser.add_argument(
         "--fertility-config",

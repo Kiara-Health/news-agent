@@ -198,10 +198,16 @@ cython_debug/
 # Project-specific ignores
 # Generated output files
 output/
+output_fertility/
 example_output/
 *.txt
 !requirements.txt
 !sources.txt
+
+# Ingestor runtime artifacts
+ingestor_history.db
+*.etag_cache.json
+selection_history.db
 
 # Documentation files (keep only main README, LICENSE, and CHANGELOG)
 PIPELINE_README.md

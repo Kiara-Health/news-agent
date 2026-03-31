@@ -1,0 +1,96 @@
+# ============================================================
+# feed-ingestor — example configuration
+# Copy to config.yaml and adjust to your environment.
+# ============================================================
+
+# ----------------------------------------------------------------
+# Feed sources
+# Add, remove, or disable feeds here without touching any code.
+# source_type: journal | pubmed | preprint | news
+# ----------------------------------------------------------------
+feeds:
+  - name: "OUP - Human Reproduction"
+    url: "https://academic.oup.com/rss/site_5285/3151.xml"
+    source_type: journal
+    enabled: true
+    tags:
+      - human-reproduction
+
+  - name: "OUP - Human Reproduction - Editors Choice"
+    url: "https://academic.oup.com/rss/site_5285/3151_56068.xml"
+    source_type: journal
+    enabled: true
+    tags:
+      - human-reproduction-update
+
+  - name: "Fertility and Sterility — Articles in Press"
+    url: "https://www.fertstert.org/inpress.rss"
+    source_type: journal
+    enabled: true
+    tags:
+      - fertility-and-sterility
+
+  - name: "Nature — Infertility"
+    url: "https://www.nature.com/subjects/infertility.rss"
+    source_type: journal
+    enabled: true
+    tags:
+      - nature
+      - infertility
+
+  - name: "Nature — Male Factor Infertility"
+    url: "https://www.nature.com/subjects/male-factor-infertility.rss"
+    source_type: journal
+    enabled: true
+    tags:
+      - nature
+      - male-infertility
+
+  - name: "Nature Medicine — Reproductive Biology"
+    url: "https://www.nature.com/subjects/reproductive-biology.rss"
+    source_type: journal
+    enabled: false          # enable when the feed is confirmed active
+    tags:
+      - nature-medicine
+      - reproductive-biology
+
+  # Optional: PubMed saved-search RSS feeds
+  # Generate from: https://pubmed.ncbi.nlm.nih.gov/ → Save search → Create RSS
+  - name: "PubMed — IVF RCTs"
+    url: ""                 # paste your PubMed RSS URL here
+    source_type: pubmed
+    enabled: false
+    tags:
+      - pubmed
+      - ivf
+      - rct
+
+
+# ----------------------------------------------------------------
+# HTTP / fetch settings
+# ----------------------------------------------------------------
+ingest:
+  timeout_seconds: 30
+  max_retries: 3
+  backoff_factor: 2.0         # wait = backoff_factor * 2^(attempt-1) seconds
+  user_agent: "KiaraHealth-FeedIngestor/1.0 (+https://kiara.health)"
+  lookback_days: 14           # ignore items older than this many days
+  max_workers: 4              # parallel feed fetches
+
+
+# ----------------------------------------------------------------
+# Deduplication
+# ----------------------------------------------------------------
+dedupe:
+  title_similarity_threshold: 0.85
+  drop_corrections: true      # drop Correction / Erratum / Retraction items
+
+
+# ----------------------------------------------------------------
+# Cross-run history
+# ----------------------------------------------------------------
+history:
+  path: "ingestor_history.db"
+  suppress_emitted: true      # suppress items emitted in earlier runs
+  suppress_seen: false        # allow items seen but not yet emitted
+  allow_repeat_after_days: null   # set to e.g. 90 to re-surface old items

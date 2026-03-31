@@ -1,4 +1,14 @@
-feedparser>=6.0.11
-requests>=2.31.0
+# feed-ingestor deps (merged into this package)
+feedparser>=6.0
+requests>=2.31
+tenacity>=8.2
+pydantic>=2.0
+pyyaml>=6.0
+
+# news-agent deps
 openai>=1.0.0
 python-dotenv>=1.0.0
+
+# dev / test
+pytest>=8.0
+pytest-cov>=5.0
